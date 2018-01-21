@@ -1,3 +1,5 @@
+local BspBuilding = require("src.bspBuilding")
+
 local grid = {}
 
 local gridDebugFlag = true
@@ -16,11 +18,24 @@ end
 
 local _populateGrid = function(self)
     for x = 1, self.xSize do
-        for y = 1, self.ySize  do
+        for y = 1, self.ySize do
             -- local prob = grid_rng:random(100)
             -- if prob >= 85 then
             --     self[x][y].walkable = false
-            -- end
+            -- end    
+        end
+    end
+end
+
+local function _addBuilding(self, buildingX, buildingY, buildingW, buildingH)
+    local buildingX, buildingY = buildingX,buildingY
+    local bspBuilding = BspBuilding.create(buildingW, buildingH)
+
+    for x = 1, bspBuilding.w do
+        for y = 1, bspBuilding.h do
+            if bspBuilding.grid[x][y].outerWall then
+                self[x + buildingX][y + buildingY].walkable = false
+            end
         end
     end
 end
@@ -69,6 +84,7 @@ grid.create = function(xSize, ySize)
 
     _generateGrid(inst)
     _populateGrid(inst)
+    _addBuilding(inst, 5, 5, 20, 20)
 
     inst.worldSpaceToGrid = worldSpaceToGrid
     inst.isWalkable = isWalkable
