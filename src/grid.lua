@@ -75,7 +75,7 @@ grid.create = function(xSize, ySize)
     local inst = {}
 
     inst.tag = "grid"
-    inst.cellSize = 20
+    inst.cellSize = 10
     inst.worldScaleInScreens = 1
     local border = 1
     inst.cellDrawSize = inst.cellSize - border
@@ -84,7 +84,7 @@ grid.create = function(xSize, ySize)
 
     _generateGrid(inst)
     _populateGrid(inst)
-    _addBuilding(inst, 5, 5, 20, 20)
+    _addBuilding(inst, 0, 0, inst.xSize, inst.ySize)
 
     inst.worldSpaceToGrid = worldSpaceToGrid
     inst.isWalkable = isWalkable
