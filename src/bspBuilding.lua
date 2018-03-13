@@ -29,6 +29,17 @@ local function _createRoom(self, x, y, w, h)
     self._splitRoom(self, x, y, w, h)
 end
 
+local _demoWalls = function(self)
+    for x = 1, self.w do
+        for y = 1, self.h do
+            local prob = bsp_rng:random(100)
+            if self.grid[x][y].outerWall and prob > 95 then
+                self.grid[x][y].outerWall = false
+            end
+        end
+    end
+end
+
 --[[
     x and y represent top-left corner coord
 --]] 
@@ -110,7 +121,7 @@ bspBuilding.create = function(w, h, minRoomSize)
     inst._splitRoom = _splitRoom
 
     _createRoom(inst, 1, 1, w - 1, h - 1)
-
+    _demoWalls(inst)
     return inst
 end
 
