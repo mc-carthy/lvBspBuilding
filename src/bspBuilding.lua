@@ -2,7 +2,9 @@ local bspBuilding = {}
 
 local bsp_rng = love.math.newRandomGenerator(os.time())
 
-local numIterations = 0
+local numIterationsO = 0
+local numIterationsA = 0
+local numIterationsB = 0
 
 local function _createOuterWalls(self)
     local grid = {}
@@ -18,7 +20,7 @@ local function _createOuterWalls(self)
     return grid
 end
 
-local function _createRoom(self, x, y, w, h)
+local function _createRoom(self, x, y, w, h, numIterations)
     for i = x, x + w do
         for j = y, y + h do
             if i == x or i == x + w or j == y or j == y + h then
@@ -67,11 +69,11 @@ local function _splitRoom(self, x, y, w, h, minRoomSize)
     local split = love.math.random(minRoomSize, max)
 
     if splitH then
-        self:_createRoom(x, y + split, w, h - split)
-        self:_createRoom(x, y, w, split)
+        self:_createRoom(x, y + split, w, h - split, numIterationsA)
+        self:_createRoom(x, y, w, split, numIterationsB)
     else
-        self:_createRoom(x + split, y, w - split, h)
-        self:_createRoom(x, y, split, h)
+        self:_createRoom(x + split, y, w - split, h, numIterationsA)
+        self:_createRoom(x, y, split, h, numIterationsB)
     end
 
     return true
@@ -105,7 +107,7 @@ bspBuilding.create = function(w, h, minRoomSize)
     inst._createRoom = _createRoom
     inst._splitRoom = _splitRoom
 
-    _createRoom(inst, 1, 1, w - 1, h - 1)
+    _createRoom(inst, 1, 1, w - 1, h - 1, numIterationsO)
 
     return inst
 end
