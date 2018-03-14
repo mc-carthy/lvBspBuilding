@@ -45,8 +45,8 @@ end
 local _demoRoomWalls = function(self)
     for _, room in ipairs(self.rooms) do
         for _ = 1, 2 do
-            local i = math.random(1, #room.walls)
-            local demoWall = room.walls[i]
+            local i = math.random(1, #room.cornerWalls)
+            local demoWall = room.edgeWalls[i]
             self.grid[demoWall.x][demoWall.y].outerWall = false
         end
     end
@@ -60,7 +60,8 @@ local _createFinalRoom = function(self, x, y, w, h)
         w = w,
         h = h,
         floor = {},
-        walls = {},
+        edgeWalls = {},
+        cornerWalls = {},
         neighbours = {},
         debugColour = { math.random(0, 255), math.random(0, 255), math.random(0, 255), 127 }
     }
@@ -71,7 +72,11 @@ local _createFinalRoom = function(self, x, y, w, h)
                     x = i,
                     y = j
                 }
-                table.insert(room.walls, wall)
+                if (i == x or i == x + w) and (j == y or j == y + h) then
+                    table.insert(room.cornerWalls, wall)
+                else
+                    table.insert(room.edgeWalls, wall)
+                end
             else 
                 local floor = {
                     x = i,
@@ -89,8 +94,11 @@ local _printRoomStatus = function(self)
     for i, room in ipairs(self.rooms) do
         io.write("Room number: " .. room.number .. "\n")
         io.write("Room centre: " .. room.x + room.w / 2 .. "-" .. room.y + room.h / 2 .. "\n")
-        for j, wall in ipairs(room.walls) do
-            io.write("Room number: " .. i .. " Wall at: " .. room.walls[j].x .. "-" .. room.walls[j].y .. "\n")
+        for j, wall in ipairs(room.cornerWalls) do
+            io.write("Room number: " .. i .. " Wall at: " .. room.cornerWalls[j].x .. "-" .. room.cornerWalls[j].y .. "\n")
+        end
+        for j, wall in ipairs(room.edgeWalls) do
+            io.write("Room number: " .. i .. " Wall at: " .. room.edgeWalls[j].x .. "-" .. room.edgeWalls[j].y .. "\n")
         end
     end
 end
