@@ -41,10 +41,38 @@ local _demoWalls = function(self)
     end
 end
 
+local _createFinalRoom = function(self, x, y, w, h)
+    local room = {
+        number = roomNumber,
+        x = x,
+        y = y,
+        w = w,
+        h = h,
+        walls = {},
+        neighbours = {}
+    }
+    for i = x, x + w do
+        for j = y, y + h do
+            if i == 1 or i == x + w or j == 1 or j == y + h then
+                local wall = {
+                    x = i,
+                    y = j
+                }
+                table.insert(room.walls, wall)
+            end
+        end
+    end
+    roomNumber = roomNumber + 1
+    table.insert(self.rooms, room)
+end
+
 local _printRoomStatus = function(self)
     for i, room in ipairs(self.rooms) do
         io.write("Room number: " .. room.number .. "\n")
         io.write("Room centre: " .. room.x + room.w / 2 .. "-" .. room.y + room.h / 2 .. "\n")
+        for j, wall in ipairs(room.walls) do
+            io.write("Room number: " .. i .. " Wall at: " .. room.walls[j].x .. "-" .. room.walls[j].y .. "\n")
+        end
     end
 end
 
@@ -80,15 +108,7 @@ local function _splitRoom(self, x, y, w, h, minRoomSize)
     local prob2 = bsp_rng:random(100)
     -- TODO remove hard-coded values
     if (max < minRoomSize) or (iteration > 2 and prob2 < 35) then 
-        local room = {
-            number = roomNumber,
-            x = x,
-            y = y,
-            w = w,
-            h = h
-        }
-        roomNumber = roomNumber + 1
-        table.insert(self.rooms, room)
+            _createFinalRoom(self, x, y, w, h)
         return
     end
 
