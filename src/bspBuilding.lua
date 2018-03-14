@@ -4,6 +4,7 @@ local bsp_rng = love.math.newRandomGenerator(os.time())
 
 local iteration = 0
 local roomNumber = 1
+local dontSplitProb = 35
 
 local function _createOuterWalls(self)
     local grid = {}
@@ -37,6 +38,16 @@ local _demoWalls = function(self)
             if self.grid[x][y].outerWall and prob > 95 then
                 self.grid[x][y].outerWall = false
             end
+        end
+    end
+end
+
+local _demoRoomWalls = function(self)
+    for _, room in ipairs(self.rooms) do
+        for _ = 1, 2 do
+            local i = math.random(1, #room.walls)
+            local demoWall = room.walls[i]
+            self.grid[demoWall.x][demoWall.y].outerWall = false
         end
     end
 end
@@ -89,6 +100,7 @@ end
 --]] 
 local function _splitRoom(self, x, y, w, h, minRoomSize)
     iteration = iteration + 1
+    dontSplitProb = dontSplitProb + 5
     local minRoomSize = minRoomSize or 10
     local prob = bsp_rng:random(100)
     local splitH = nil
@@ -115,7 +127,7 @@ local function _splitRoom(self, x, y, w, h, minRoomSize)
 
     local prob2 = bsp_rng:random(100)
     -- TODO remove hard-coded values
-    if (max < minRoomSize) or (iteration > 2 and prob2 < 35) then 
+    if (max < minRoomSize) or (iteration > 2 and prob2 < dontSplitProb) then 
             _createFinalRoom(self, x, y, w, h)
         return
     end
@@ -167,7 +179,8 @@ bspBuilding.create = function(w, h, minRoomSize)
     inst._splitRoom = _splitRoom
 
     _createRoom(inst, 1, 1, w - 1, h - 1)
-    _demoWalls(inst)
+    -- _demoWalls(inst)
+    _demoRoomWalls(inst)
     -- _printRoomStatus(inst)
     return inst
 end
