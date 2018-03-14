@@ -3,6 +3,7 @@ local bspBuilding = {}
 local bsp_rng = love.math.newRandomGenerator(os.time())
 
 local iteration = 0
+local roomNumber = 1
 
 local function _createOuterWalls(self)
     local grid = {}
@@ -40,6 +41,13 @@ local _demoWalls = function(self)
     end
 end
 
+local _printRoomStatus = function(self)
+    for i, room in ipairs(self.rooms) do
+        io.write("Room number: " .. room.number .. "\n")
+        io.write("Room centre: " .. room.x + room.w / 2 .. "-" .. room.y + room.h / 2 .. "\n")
+    end
+end
+
 --[[
     x and y represent top-left corner coord
 --]] 
@@ -72,6 +80,15 @@ local function _splitRoom(self, x, y, w, h, minRoomSize)
     local prob2 = bsp_rng:random(100)
     -- TODO remove hard-coded values
     if (max < minRoomSize) or (iteration > 2 and prob2 < 35) then 
+        local room = {
+            number = roomNumber,
+            x = x,
+            y = y,
+            w = w,
+            h = h
+        }
+        roomNumber = roomNumber + 1
+        table.insert(self.rooms, room)
         return
     end
 
@@ -110,6 +127,7 @@ bspBuilding.create = function(w, h, minRoomSize)
     local inst = {}
 
     inst.grid = {}
+    inst.rooms = {}
     inst.w = w
     inst.h = h
     inst.minRoomSize = minRoomSize or 5
@@ -122,6 +140,7 @@ bspBuilding.create = function(w, h, minRoomSize)
 
     _createRoom(inst, 1, 1, w - 1, h - 1)
     _demoWalls(inst)
+    _printRoomStatus(inst)
     return inst
 end
 

@@ -38,6 +38,8 @@ local function _addBuilding(self, buildingX, buildingY, buildingW, buildingH)
             end
         end
     end
+
+    return bspBuilding
 end
 
 local worldSpaceToGrid = function(self, x, y)
@@ -51,6 +53,13 @@ local isWalkable = function(self, gridX, gridY)
         return self[gridX][gridY].walkable
     else
         return true
+    end
+end
+
+local _drawRoomCentres = function(self)
+    love.graphics.setColor(191, 0, 0, 255)
+    for i, room in ipairs(self.building.rooms) do
+        love.graphics.circle("fill", (room.x + room.w / 2) * self.cellSize, (room.y + room.h / 2) * self.cellSize, 5)
     end
 end
 
@@ -69,6 +78,7 @@ local draw = function(self)
             end
         end
     end
+    _drawRoomCentres(self)
 end
 
 grid.create = function(xSize, ySize)
@@ -84,7 +94,7 @@ grid.create = function(xSize, ySize)
 
     _generateGrid(inst)
     _populateGrid(inst)
-    _addBuilding(inst, 0, 0, inst.xSize, inst.ySize)
+    inst.building = _addBuilding(inst, 0, 0, inst.xSize, inst.ySize)
 
     inst.worldSpaceToGrid = worldSpaceToGrid
     inst.isWalkable = isWalkable
