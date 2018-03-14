@@ -2,6 +2,9 @@ local Grid = require("src.grid")
 
 local grid
 
+drawColouredFloors = true
+drawRoomCentres = true
+
 function love.load()
     grid = Grid.create()
 end
@@ -20,6 +23,12 @@ function love.keypressed(key)
     end
     if key == 'space' then
         _rebuildGrid()
+    end
+    if key == 'f' then
+        drawColouredFloors = not drawColouredFloors
+    end
+    if key == 'c' then
+        drawRoomCentres = not drawRoomCentres
     end
 end
 

@@ -48,17 +48,25 @@ local _createFinalRoom = function(self, x, y, w, h)
         y = y,
         w = w,
         h = h,
+        floor = {},
         walls = {},
-        neighbours = {}
+        neighbours = {},
+        debugColour = { math.random(0, 255), math.random(0, 255), math.random(0, 255), 127 }
     }
     for i = x, x + w do
         for j = y, y + h do
-            if i == 1 or i == x + w or j == 1 or j == y + h then
+            if i == x or i == x + w or j == y or j == y + h then
                 local wall = {
                     x = i,
                     y = j
                 }
                 table.insert(room.walls, wall)
+            else 
+                local floor = {
+                    x = i,
+                    y = j
+                }
+                table.insert(room.floor, floor)
             end
         end
     end
@@ -160,7 +168,7 @@ bspBuilding.create = function(w, h, minRoomSize)
 
     _createRoom(inst, 1, 1, w - 1, h - 1)
     _demoWalls(inst)
-    _printRoomStatus(inst)
+    -- _printRoomStatus(inst)
     return inst
 end
 

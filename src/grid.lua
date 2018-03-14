@@ -63,6 +63,15 @@ local _drawRoomCentres = function(self)
     end
 end
 
+local _drawRoomFloors = function(self)
+    for i, room in ipairs(self.building.rooms) do
+        for j, floorTile in ipairs(room.floor) do
+            love.graphics.setColor(unpack(room.debugColour))
+            love.graphics.rectangle("fill", (floorTile.x - 1) * self.cellSize, (floorTile.y - 1) * self.cellSize, self.cellDrawSize, self.cellDrawSize)
+        end
+    end
+end
+
 local update = function(self, dt)
 end
 
@@ -78,7 +87,12 @@ local draw = function(self)
             end
         end
     end
-    _drawRoomCentres(self)
+    if drawColouredFloors then
+        _drawRoomFloors(self)
+    end
+    if drawRoomCentres then
+        _drawRoomCentres(self)
+    end
 end
 
 grid.create = function(xSize, ySize)
