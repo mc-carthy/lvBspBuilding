@@ -238,6 +238,7 @@ bspBuilding.create = function(w, h, minRoomSize)
     -- _demoWalls(inst)
     -- _demoRoomWalls(inst)
     _demoNeighbourWalls(inst)
+    _setRoomNeighbours(inst)
     -- _printRoomStatus(inst)
     return inst
 end
