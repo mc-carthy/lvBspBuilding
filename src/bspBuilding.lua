@@ -54,6 +54,20 @@ local _demoRoomWalls = function(self)
     end
 end
 
+local _demoNeighbourWalls = function(self)
+    for _, room in ipairs(self.rooms) do
+        for _, neighbour in ipairs(room.neighbours) do
+            for _, selfWall in ipairs(room.edgeWalls) do
+                for _, nWall in ipairs(neighbour.edgeWalls) do
+                    if selfWall.x == nWall.x and selfWall.y == nWall.y then
+                        self.grid[selfWall.x][selfWall.y].outerWall = false
+                    end
+                end
+            end
+        end
+    end
+end
+
 local _createFinalRoom = function(self, x, y, w, h)
     local room = {
         number = roomNumber,
@@ -102,7 +116,7 @@ local _setRoomNeighbours = function(self)
                             if not Utils.contains(roomA.neighbours, roomB) then
                                 table.insert(roomA.neighbours, roomB)
                                 table.insert(roomB.neighbours, roomA)
-                                io.write(roomA.number .. " linked to " .. roomB.number)
+                                -- io.write(roomA.number .. " linked to " .. roomB.number)
                             end
                         end
                     end
@@ -211,7 +225,8 @@ bspBuilding.create = function(w, h, minRoomSize)
     _createRoom(inst, 1, 1, w - 1, h - 1)
     _setRoomNeighbours(inst)
     -- _demoWalls(inst)
-    _demoRoomWalls(inst)
+    -- _demoRoomWalls(inst)
+    _demoNeighbourWalls(inst)
     -- _printRoomStatus(inst)
     return inst
 end
