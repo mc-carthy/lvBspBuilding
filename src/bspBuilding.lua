@@ -92,16 +92,18 @@ local _createFinalRoom = function(self, x, y, w, h)
     table.insert(self.rooms, room)
 end
 
--- TODO: This may not work...
 local _setRoomNeighbours = function(self)
     for i, roomA in ipairs(self.rooms) do
         for x, edgeWallA in ipairs(roomA.edgeWalls) do
             for j, roomB in ipairs(self.rooms) do
                 if roomA ~= roomB then
                     for y, edgeWallB in ipairs(roomB.edgeWalls) do
-                        if not Utils.contains(roomA.neighbours, roomB) then
-                            table.insert(roomA.neighbours, roomB)
-                            table.insert(roomB.neighbours, roomA)
+                        if edgeWallA.x == edgeWallB.x and edgeWallA.y == edgeWallB.y then
+                            if not Utils.contains(roomA.neighbours, roomB) then
+                                table.insert(roomA.neighbours, roomB)
+                                table.insert(roomB.neighbours, roomA)
+                                io.write(roomA.number .. " linked to " .. roomB.number)
+                            end
                         end
                     end
                 end
@@ -207,6 +209,7 @@ bspBuilding.create = function(w, h, minRoomSize)
     inst._splitRoom = _splitRoom
 
     _createRoom(inst, 1, 1, w - 1, h - 1)
+    _setRoomNeighbours(inst)
     -- _demoWalls(inst)
     _demoRoomWalls(inst)
     -- _printRoomStatus(inst)

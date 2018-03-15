@@ -72,6 +72,15 @@ local _drawRoomFloors = function(self)
     end
 end
 
+local _drawRoomLines = function(self)
+    love.graphics.setColor(255, 255, 255, 255)
+    for i, room in ipairs(self.building.rooms) do
+        for j, neighbour in ipairs(room.neighbours) do
+            love.graphics.line((room.x + room.w / 2) * self.cellSize, (room.y + room.h / 2) * self.cellSize, (neighbour.x + neighbour.w / 2) * self.cellSize,  (neighbour.y + neighbour.h / 2) * self.cellSize)
+        end
+    end
+end
+
 local update = function(self, dt)
 end
 
@@ -89,6 +98,9 @@ local draw = function(self)
     end
     if drawColouredFloors then
         _drawRoomFloors(self)
+    end
+    if drawRoomLines then
+        _drawRoomLines(self)
     end
     if drawRoomCentres then
         _drawRoomCentres(self)
