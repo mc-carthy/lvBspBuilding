@@ -55,14 +55,16 @@ local _demoRoomWalls = function(self)
 end
 
 local _demoNeighbourWall = function(self, room, neighbour)
+    local sharedWalls = {}
     for _, selfWall in pairs(room.edgeWalls) do
         for _, nWall in pairs(neighbour.edgeWalls) do
             if selfWall.x == nWall.x and selfWall.y == nWall.y then
-                self.grid[selfWall.x][selfWall.y].outerWall = false
-                return
+                table.insert(sharedWalls, selfWall)
             end
         end
     end
+    local demoWall = sharedWalls[math.random(1, #sharedWalls)]
+    self.grid[demoWall.x][demoWall.y].outerWall = false
 end
 
 local _demoNeighbourWalls = function(self)
