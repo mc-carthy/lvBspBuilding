@@ -54,16 +54,21 @@ local _demoRoomWalls = function(self)
     end
 end
 
-local _demoNeighbourWalls = function(self)
-    for _, room in ipairs(self.rooms) do
-        for _, neighbour in ipairs(room.neighbours) do
-            for _, selfWall in ipairs(room.edgeWalls) do
-                for _, nWall in ipairs(neighbour.edgeWalls) do
-                    if selfWall.x == nWall.x and selfWall.y == nWall.y then
-                        self.grid[selfWall.x][selfWall.y].outerWall = false
-                    end
-                end
+local _demoNeighbourWall = function(self, room, neighbour)
+    for _, selfWall in pairs(room.edgeWalls) do
+        for _, nWall in pairs(neighbour.edgeWalls) do
+            if selfWall.x == nWall.x and selfWall.y == nWall.y then
+                self.grid[selfWall.x][selfWall.y].outerWall = false
+                return
             end
+        end
+    end
+end
+
+local _demoNeighbourWalls = function(self)
+    for _, room in pairs(self.rooms) do
+        for _, neighbour in pairs(room.neighbours) do
+            _demoNeighbourWall(self, room, neighbour)
         end
     end
 end
