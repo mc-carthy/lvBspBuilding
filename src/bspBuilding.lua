@@ -1,3 +1,5 @@
+local Utils = require("src.utils")
+
 local bspBuilding = {}
 
 local bsp_rng = love.math.newRandomGenerator(os.time())
@@ -88,6 +90,24 @@ local _createFinalRoom = function(self, x, y, w, h)
     end
     roomNumber = roomNumber + 1
     table.insert(self.rooms, room)
+end
+
+-- TODO: This may not work...
+local _setRoomNeighbours = function(self)
+    for i, roomA in ipairs(self.rooms) do
+        for x, edgeWallA in ipairs(roomA.edgeWalls) do
+            for j, roomB in ipairs(self.rooms) do
+                if roomA ~= roomB then
+                    for y, edgeWallB in ipairs(roomB.edgeWalls) do
+                        if not Utils.contains(roomA.neighbours, roomB) then
+                            table.insert(roomA.neighbours, roomB)
+                            table.insert(roomB.neighbours, roomA)
+                        end
+                    end
+                end
+            end
+        end
+    end
 end
 
 local _printRoomStatus = function(self)
