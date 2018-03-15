@@ -9,4 +9,12 @@ function utils.contains(table, element)
     return false
 end
 
+function utils.remove(tbl, element)
+    for i, value in ipairs(tbl) do
+        if value == element then
+            table.remove(tbl, i)
+        end
+    end
+end
+
 return utils

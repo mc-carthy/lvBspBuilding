@@ -68,9 +68,13 @@ local _demoNeighbourWall = function(self, room, neighbour)
 end
 
 local _demoNeighbourWalls = function(self)
-    for _, room in pairs(self.rooms) do
-        for _, neighbour in pairs(room.neighbours) do
-            _demoNeighbourWall(self, room, neighbour)
+    for i, room in ipairs(self.rooms) do
+        while #room.neighbours ~= 0 do
+            for j, neighbour in ipairs(room.neighbours) do
+                Utils.remove(room.neighbours, neighbour)
+                Utils.remove(neighbour.neighbours, room)
+                _demoNeighbourWall(self, room, neighbour)
+            end
         end
     end
 end
