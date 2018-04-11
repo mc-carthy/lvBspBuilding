@@ -47,9 +47,34 @@ end
 local _demoRoomWalls = function(self)
     for _, room in ipairs(self.rooms) do
         for _ = 1, 2 do
-            local i = math.random(1, #room.cornerWalls)
+            local i = math.random(1, #room.edgeWalls)
             local demoWall = room.edgeWalls[i]
             self.grid[demoWall.x][demoWall.y].outerWall = false
+        end
+    end
+end
+
+local _demoNeighbourWall = function(self, room, neighbour)
+    local sharedWalls = {}
+    for _, selfWall in pairs(room.edgeWalls) do
+        for _, nWall in pairs(neighbour.edgeWalls) do
+            if selfWall.x == nWall.x and selfWall.y == nWall.y then
+                table.insert(sharedWalls, selfWall)
+            end
+        end
+    end
+    local demoWall = sharedWalls[math.random(1, #sharedWalls)]
+    self.grid[demoWall.x][demoWall.y].outerWall = false
+end
+
+local _demoNeighbourWalls = function(self)
+    for i, room in ipairs(self.rooms) do
+        while #room.neighbours ~= 0 do
+            for j, neighbour in ipairs(room.neighbours) do
+                Utils.tableRemove(room.neighbours, neighbour)
+                Utils.tableRemove(neighbour.neighbours, room)
+                _demoNeighbourWall(self, room, neighbour)
+            end
         end
     end
 end
@@ -211,7 +236,9 @@ bspBuilding.create = function(w, h, minRoomSize)
     _createRoom(inst, 1, 1, w - 1, h - 1)
     _setRoomNeighbours(inst)
     -- _demoWalls(inst)
-    _demoRoomWalls(inst)
+    -- _demoRoomWalls(inst)
+    _demoNeighbourWalls(inst)
+    _setRoomNeighbours(inst)
     -- _printRoomStatus(inst)
     return inst
 end
