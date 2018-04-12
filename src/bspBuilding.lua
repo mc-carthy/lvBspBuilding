@@ -71,8 +71,8 @@ local _demoNeighbourWalls = function(self)
     for i, room in ipairs(self.rooms) do
         while #room.neighbours ~= 0 do
             for j, neighbour in ipairs(room.neighbours) do
-                Utils.tableRemove(room.neighbours, neighbour)
-                Utils.tableRemove(neighbour.neighbours, room)
+                Utils.remove(room.neighbours, neighbour)
+                Utils.remove(neighbour.neighbours, room)
                 _demoNeighbourWall(self, room, neighbour)
             end
         end
@@ -127,7 +127,7 @@ local _setRoomNeighbours = function(self)
                             if not Utils.contains(roomA.neighbours, roomB) then
                                 table.insert(roomA.neighbours, roomB)
                                 table.insert(roomB.neighbours, roomA)
-                                io.write(roomA.number .. " linked to " .. roomB.number)
+                                -- io.write(roomA.number .. " linked to " .. roomB.number)
                             end
                         end
                     end
