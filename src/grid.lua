@@ -57,7 +57,7 @@ local isWalkable = function(self, gridX, gridY)
 end
 
 local _drawRoomCentres = function(self)
-    love.graphics.setColor(191, 0, 0, 255)
+    love.graphics.setColor(191 / 255, 0, 0, 255 / 255)
     for i, room in ipairs(self.building.rooms) do
         love.graphics.circle("fill", (room.x + room.w / 2) * self.cellSize, (room.y + room.h / 2) * self.cellSize, 5)
     end
@@ -73,7 +73,7 @@ local _drawRoomFloors = function(self)
 end
 
 local _drawRoomLines = function(self)
-    love.graphics.setColor(255, 255, 255, 255)
+    love.graphics.setColor(255 / 255, 255 / 255, 255 / 255, 255 / 255)
     for i, room in ipairs(self.building.rooms) do
         for j, neighbour in ipairs(room.neighbours) do
             love.graphics.line((room.x + room.w / 2) * self.cellSize, (room.y + room.h / 2) * self.cellSize, (neighbour.x + neighbour.w / 2) * self.cellSize,  (neighbour.y + neighbour.h / 2) * self.cellSize)
@@ -87,9 +87,9 @@ end
 local draw = function(self)
     for x = 1, self.xSize do
         for y = 1, self.ySize do
-            love.graphics.setColor(127, 127, 127)
+            love.graphics.setColor(127 / 255, 127 / 255, 127 / 255)
             if self[x][y].walkable == false then
-                love.graphics.setColor(31, 31, 31)
+                love.graphics.setColor(31 / 255, 31 / 255, 31 / 255)
             end
             if gridDebugFlag then
                 love.graphics.rectangle('fill', (x - 1) * self.cellSize, (y - 1) * self.cellSize, self.cellDrawSize, self.cellDrawSize)

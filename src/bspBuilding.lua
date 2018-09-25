@@ -90,7 +90,7 @@ local _createFinalRoom = function(self, x, y, w, h)
         edgeWalls = {},
         cornerWalls = {},
         neighbours = {},
-        debugColour = { math.random(0, 255), math.random(0, 255), math.random(0, 255), 127 }
+        debugColour = { math.random(0, 255) / 255, math.random(0, 255) / 255, math.random(0, 255) / 255, 127 / 255 }
     }
     for i = x, x + w do
         for j = y, y + h do
