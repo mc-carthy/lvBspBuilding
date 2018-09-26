@@ -138,6 +138,36 @@ local _setRoomNeighbours = function(self)
     end
 end
 
+local getRoomCoords = function(room)
+    return { room.x + room.w / 2, room.y + room.h / 2 }
+end
+
+local findRoomByCoords = function(self, coords)
+    for k, room in pairs(self.rooms) do
+        local roomCoords = getRoomCoords(room)
+        if roomCoords[1] == coords[1] and roomCoords[2] == coords[2] then
+            return room
+        end
+    end
+    assert(false, 'Room not found at x: ' .. coords[1] .. '-' .. coords[2])
+end
+
+local _setRoomNeighboursMst = function(self)
+    for k, room in pairs(self.rooms) do
+        room.neighbours = {}
+        for l, edge in pairs(self.tree) do
+            local edgeX1, edgeY1, edgeX2, edgeY2 = edge[1], edge[2], edge[3], edge[4]
+            local room1 = findRoomByCoords(self, { edgeX1, edgeY1 })
+            local room2 = findRoomByCoords(self, { edgeX2, edgeY2 })
+
+            if not Utils.contains(room1.neighbours, room2) and not Utils.contains(room2.neighbours, room1) then
+                table.insert(room1.neighbours, room2)
+                table.insert(room2.neighbours, room1)
+            end
+        end
+    end
+end
+
 local _printRoomStatus = function(self)
     for i, room in ipairs(self.rooms) do
         io.write("Room number: " .. room.number .. "\n")
@@ -305,16 +335,18 @@ bspBuilding.create = function(w, h, minRoomSize)
 
     _createRoom(inst, 1, 1, w - 1, h - 1)
     _setRoomNeighbours(inst)
-    -- _demoWalls(inst)
-    -- _demoRoomWalls(inst)
-    _demoNeighbourWalls(inst)
-    _setRoomNeighbours(inst)
-    -- _printRoomStatus(inst)
-    _printPointsDataForMst(inst)
-    _printEdgeDataForMst(inst)
     inst.points = _getPointsDataForMst(inst)
     inst.edges = _getEdgeDataForMst(inst)
     inst.tree = Mst.tree(inst.points, inst.edges)
+    -- _printRoomStatus(inst)
+    -- _printPointsDataForMst(inst)
+    -- _printEdgeDataForMst(inst)
+    _setRoomNeighboursMst(inst)
+    -- _demoWalls(inst)
+    -- _demoRoomWalls(inst)
+    _demoNeighbourWalls(inst)
+    _setRoomNeighboursMst(inst)
+    -- _setRoomNeighbours(inst)
     return inst
 end
 
