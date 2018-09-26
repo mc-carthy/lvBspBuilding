@@ -81,6 +81,13 @@ local _drawRoomLines = function(self)
     end
 end
 
+local _drawMst = function(self)
+    love.graphics.setColor(1, 0, 1, 1)
+    for i = 1, #self.building.tree do
+        love.graphics.line(self.building.tree[i][1] * 10,self.building.tree[i][2] * 10,self.building.tree[i][3] * 10,self.building.tree[i][4] * 10)
+    end
+end
+
 local update = function(self, dt)
 end
 
@@ -104,6 +111,9 @@ local draw = function(self)
     end
     if drawRoomCentres then
         _drawRoomCentres(self)
+    end
+    if drawMst then
+        _drawMst(self)
     end
 end
 

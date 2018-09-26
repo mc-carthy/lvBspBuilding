@@ -5,6 +5,7 @@ local grid
 drawColouredFloors = true
 drawRoomCentres = true
 drawRoomLines = true
+drawMst = true
 
 function love.load()
     grid = Grid.create()
@@ -33,6 +34,9 @@ function love.keypressed(key)
     end
     if key == 'l' then
         drawRoomLines = not drawRoomLines
+    end
+    if key == 'm' then
+        drawMst = not drawMst
     end
 end
 

@@ -1,4 +1,5 @@
 local Utils = require("src.utils")
+local Mst = require('src.mst')
 
 local bspBuilding = {}
 
@@ -164,6 +165,16 @@ local _printPointsDataForMst = function(self)
     print('')
 end
 
+local _getPointsDataForMst = function(self)
+    local points = {}
+    for i, room in ipairs(self.rooms) do
+        local roomCentreX = room.x + room.w / 2
+        local roomCentreY = room.y + room.h / 2
+        table.insert(points, { roomCentreX, roomCentreY })
+    end
+    return points
+end
+
 local _printEdgeDataForMst = function(self)
     local edges = {}
     io.write('{')
@@ -189,6 +200,24 @@ local _printEdgeDataForMst = function(self)
     end
     io.write('}')
     print('')
+end
+
+local _getEdgeDataForMst = function(self)
+    local edges = {}
+    for i, room in ipairs(self.rooms) do
+        local roomCentreX = room.x + room.w / 2
+        local roomCentreY = room.y + room.h / 2
+        for j, n in ipairs(room.neighbours) do
+            local neighbourCentreX = n.x + n.w / 2
+            local neighbourCentreY = n.y + n.h / 2
+            local edge = { roomCentreX, roomCentreY, neighbourCentreX, neighbourCentreY }
+            local reverseEdge = { neighbourCentreX, neighbourCentreY, roomCentreX, roomCentreY }
+            if not Utils.contains(edges, edge) and not Utils.contains(edges, reverseEdge) then
+                table.insert(edges, edge)
+            end
+        end
+    end
+    return edges
 end
 
 --[[
@@ -283,6 +312,9 @@ bspBuilding.create = function(w, h, minRoomSize)
     -- _printRoomStatus(inst)
     _printPointsDataForMst(inst)
     _printEdgeDataForMst(inst)
+    inst.points = _getPointsDataForMst(inst)
+    inst.edges = _getEdgeDataForMst(inst)
+    inst.tree = Mst.tree(inst.points, inst.edges)
     return inst
 end
 
