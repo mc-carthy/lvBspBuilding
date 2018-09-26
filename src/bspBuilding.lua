@@ -150,6 +150,47 @@ local _printRoomStatus = function(self)
     end
 end
 
+local _printPointsDataForMst = function(self)
+    io.write('{')
+    for i, room in ipairs(self.rooms) do
+        local roomCentreX = room.x + room.w / 2
+        local roomCentreY = room.y + room.h / 2
+        io.write('{' .. roomCentreX .. ',' .. roomCentreY .. '}')
+        if i < #self.rooms then
+            io.write(',')
+        end
+    end
+    io.write('}')
+    print('')
+end
+
+local _printEdgeDataForMst = function(self)
+    local edges = {}
+    io.write('{')
+    for i, room in ipairs(self.rooms) do
+        local roomCentreX = room.x + room.w / 2
+        local roomCentreY = room.y + room.h / 2
+        for j, n in ipairs(room.neighbours) do
+            local neighbourCentreX = n.x + n.w / 2
+            local neighbourCentreY = n.y + n.h / 2
+            local edge = { roomCentreX, roomCentreY, neighbourCentreX, neighbourCentreY }
+            local reverseEdge = { neighbourCentreX, neighbourCentreY, roomCentreX, roomCentreY }
+            if not Utils.contains(edges, edge) and not Utils.contains(edges, reverseEdge) then
+                table.insert(edges, edge)
+                io.write('{' .. roomCentreX .. ',' .. roomCentreY .. ',' .. neighbourCentreX .. ',' .. neighbourCentreY .. '}')
+            end
+            if j < #room.neighbours then
+                io.write(',')
+            end
+        end
+        if i < #self.rooms then
+            io.write(',')
+        end
+    end
+    io.write('}')
+    print('')
+end
+
 --[[
     x and y represent top-left corner coord
 --]] 
@@ -240,6 +281,8 @@ bspBuilding.create = function(w, h, minRoomSize)
     _demoNeighbourWalls(inst)
     _setRoomNeighbours(inst)
     -- _printRoomStatus(inst)
+    _printPointsDataForMst(inst)
+    _printEdgeDataForMst(inst)
     return inst
 end
 
