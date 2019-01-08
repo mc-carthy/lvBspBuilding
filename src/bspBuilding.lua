@@ -1,7 +1,7 @@
 local Utils = require("src.utils")
 local Mst = require('src.mst')
 
-local bspBuilding = {}
+BspBuilding = Class()
 
 local bsp_rng = love.math.newRandomGenerator(os.time())
 
@@ -9,7 +9,7 @@ local iteration = 0
 local roomNumber = 1
 local dontSplitProb = 35
 
-local function _createOuterWalls(self)
+function BspBuilding:createOuterWalls()
     local grid = {}
     for x = 1, self.w do
         grid[x] = {}
@@ -23,7 +23,7 @@ local function _createOuterWalls(self)
     return grid
 end
 
-local function _createRoom(self, x, y, w, h)
+function BspBuilding:createRoom(x, y, w, h)
     for i = x, x + w do
         for j = y, y + h do
             if i == x or i == x + w or j == y or j == y + h then
@@ -31,10 +31,10 @@ local function _createRoom(self, x, y, w, h)
             end
         end
     end
-    self._splitRoom(self, x, y, w, h)
+    self:splitRoom(x, y, w, h)
 end
 
-local _demoWalls = function(self)
+function BspBuilding:demoWalls()
     for x = 1, self.w do
         for y = 1, self.h do
             local prob = bsp_rng:random(100)
@@ -45,7 +45,7 @@ local _demoWalls = function(self)
     end
 end
 
-local _demoRoomWalls = function(self)
+function BspBuilding:demoRoomWalls()
     for _, room in ipairs(self.rooms) do
         for _ = 1, 2 do
             local i = math.random(1, #room.edgeWalls)
@@ -55,7 +55,7 @@ local _demoRoomWalls = function(self)
     end
 end
 
-local _demoNeighbourWall = function(self, room, neighbour)
+function BspBuilding:demoNeighbourWall(room, neighbour)
     local sharedWalls = {}
     for _, selfWall in pairs(room.edgeWalls) do
         for _, nWall in pairs(neighbour.edgeWalls) do
@@ -68,19 +68,19 @@ local _demoNeighbourWall = function(self, room, neighbour)
     self.grid[demoWall.x][demoWall.y].outerWall = false
 end
 
-local _demoNeighbourWalls = function(self)
+function BspBuilding:demoNeighbourWalls()
     for i, room in ipairs(self.rooms) do
         while #room.neighbours ~= 0 do
             for j, neighbour in ipairs(room.neighbours) do
                 Utils.remove(room.neighbours, neighbour)
                 Utils.remove(neighbour.neighbours, room)
-                _demoNeighbourWall(self, room, neighbour)
+                self:demoNeighbourWall(room, neighbour)
             end
         end
     end
 end
 
-local _createFinalRoom = function(self, x, y, w, h)
+function BspBuilding:createFinalRoom(x, y, w, h)
     local room = {
         number = roomNumber,
         x = x,
@@ -118,7 +118,7 @@ local _createFinalRoom = function(self, x, y, w, h)
     table.insert(self.rooms, room)
 end
 
-local _setRoomNeighbours = function(self)
+function BspBuilding:setRoomNeighbours()
     for i, roomA in ipairs(self.rooms) do
         for x, edgeWallA in ipairs(roomA.edgeWalls) do
             for j, roomB in ipairs(self.rooms) do
@@ -142,7 +142,7 @@ local getRoomCoords = function(room)
     return { room.x + room.w / 2, room.y + room.h / 2 }
 end
 
-local findRoomByCoords = function(self, coords)
+function BspBuilding:findRoomByCoords(coords)
     for k, room in pairs(self.rooms) do
         local roomCoords = getRoomCoords(room)
         if roomCoords[1] == coords[1] and roomCoords[2] == coords[2] then
@@ -152,13 +152,13 @@ local findRoomByCoords = function(self, coords)
     assert(false, 'Room not found at x: ' .. coords[1] .. '-' .. coords[2])
 end
 
-local _setRoomNeighboursMst = function(self)
+function BspBuilding:setRoomNeighboursMst()
     for k, room in pairs(self.rooms) do
         room.neighbours = {}
         for l, edge in pairs(self.tree) do
             local edgeX1, edgeY1, edgeX2, edgeY2 = edge[1], edge[2], edge[3], edge[4]
-            local room1 = findRoomByCoords(self, { edgeX1, edgeY1 })
-            local room2 = findRoomByCoords(self, { edgeX2, edgeY2 })
+            local room1 = self:findRoomByCoords{ edgeX1, edgeY1 }
+            local room2 = self:findRoomByCoords{ edgeX2, edgeY2 }
 
             if not Utils.contains(room1.neighbours, room2) and not Utils.contains(room2.neighbours, room1) then
                 table.insert(room1.neighbours, room2)
@@ -168,7 +168,7 @@ local _setRoomNeighboursMst = function(self)
     end
 end
 
-local _printRoomStatus = function(self)
+function BspBuilding:printRoomStatus()
     for i, room in ipairs(self.rooms) do
         io.write("Room number: " .. room.number .. "\n")
         io.write("Room centre: " .. room.x + room.w / 2 .. "-" .. room.y + room.h / 2 .. "\n")
@@ -181,7 +181,7 @@ local _printRoomStatus = function(self)
     end
 end
 
-local _printPointsDataForMst = function(self)
+function BspBuilding.printPointsDataForMst()
     io.write('{')
     for i, room in ipairs(self.rooms) do
         local roomCentreX = room.x + room.w / 2
@@ -195,7 +195,7 @@ local _printPointsDataForMst = function(self)
     print('')
 end
 
-local _getPointsDataForMst = function(self)
+function BspBuilding:getPointsDataForMst()
     local points = {}
     for i, room in ipairs(self.rooms) do
         local roomCentreX = room.x + room.w / 2
@@ -205,7 +205,7 @@ local _getPointsDataForMst = function(self)
     return points
 end
 
-local _printEdgeDataForMst = function(self)
+function BspBuilding:printEdgeDataForMst()
     local edges = {}
     io.write('{')
     for i, room in ipairs(self.rooms) do
@@ -232,7 +232,7 @@ local _printEdgeDataForMst = function(self)
     print('')
 end
 
-local _getEdgeDataForMst = function(self)
+function BspBuilding:getEdgeDataForMst()
     local edges = {}
     for i, room in ipairs(self.rooms) do
         local roomCentreX = room.x + room.w / 2
@@ -253,7 +253,7 @@ end
 --[[
     x and y represent top-left corner coord
 --]] 
-local function _splitRoom(self, x, y, w, h, minRoomSize)
+function BspBuilding:splitRoom(x, y, w, h, minRoomSize)
     iteration = iteration + 1
     dontSplitProb = dontSplitProb + 5
     local minRoomSize = minRoomSize or 10
@@ -283,21 +283,21 @@ local function _splitRoom(self, x, y, w, h, minRoomSize)
     local prob2 = bsp_rng:random(100)
     -- TODO remove hard-coded values
     if (max < minRoomSize) or (iteration > 2 and prob2 < dontSplitProb) then 
-            _createFinalRoom(self, x, y, w, h)
+            self:createFinalRoom(x, y, w, h)
         return
     end
 
     local split = love.math.random(minRoomSize, max)
 
     if splitH then
-        self:_createRoom(x, y + split, w, h - split)
+        self:createRoom(x, y + split, w, h - split)
         iteration = 0
-        self:_createRoom(x, y, w, split)
+        self:createRoom(x, y, w, split)
         iteration = 0
     else
-        self:_createRoom(x + split, y, w - split, h)
+        self:createRoom(x + split, y, w - split, h)
         iteration = 0
-        self:_createRoom(x, y, split, h)
+        self:createRoom(x, y, split, h)
         iteration = 0
     end
 
@@ -305,7 +305,7 @@ local function _splitRoom(self, x, y, w, h, minRoomSize)
 
 end
 
-local function _addOuterDoor(self)
+function BspBuilding.addOuterDoor()
     local prob = bsp_rng:random(100)
     if prob < 25 then
         self.grid[1][love.math.random(2, self.h - 1)].outerWall = false
@@ -318,36 +318,28 @@ local function _addOuterDoor(self)
     end
 end
 
-bspBuilding.create = function(w, h, minRoomSize)
-    local inst = {}
+function BspBuilding:init(w, h, minRoomSize)
+    self.grid = {}
+    self.rooms = {}
+    self.w = w
+    self.h = h
+    self.minRoomSize = minRoomSize or 5
 
-    inst.grid = {}
-    inst.rooms = {}
-    inst.w = w
-    inst.h = h
-    inst.minRoomSize = minRoomSize or 5
+    self.grid = self:createOuterWalls()
+    -- self:addOuterDoor()
 
-    inst.grid = _createOuterWalls(inst)
-    -- _addOuterDoor(inst)
-
-    inst._createRoom = _createRoom
-    inst._splitRoom = _splitRoom
-
-    _createRoom(inst, 1, 1, w - 1, h - 1)
-    _setRoomNeighbours(inst)
-    inst.points = _getPointsDataForMst(inst)
-    inst.edges = _getEdgeDataForMst(inst)
-    inst.tree = Mst.tree(inst.points, inst.edges)
-    -- _printRoomStatus(inst)
-    -- _printPointsDataForMst(inst)
-    -- _printEdgeDataForMst(inst)
-    _setRoomNeighboursMst(inst)
-    -- _demoWalls(inst)
-    -- _demoRoomWalls(inst)
-    _demoNeighbourWalls(inst)
-    _setRoomNeighboursMst(inst)
-    -- _setRoomNeighbours(inst)
-    return inst
+    self:createRoom(1, 1, w - 1, h - 1)
+    self:setRoomNeighbours()
+    self.points = self:getPointsDataForMst()
+    self.edges = self:getEdgeDataForMst()
+    self.tree = Mst.tree(self.points, self.edges)
+    -- printRoomStatus()
+    -- printPointsDataForMst()
+    -- printEdgeDataForMst()
+    self:setRoomNeighboursMst()
+    -- demoWalls()
+    -- demoRoomWalls()
+    self:demoNeighbourWalls()
+    self:setRoomNeighboursMst()
+    -- setRoomNeighbours()
 end
-
-return bspBuilding

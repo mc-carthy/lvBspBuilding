@@ -1,3 +1,5 @@
+Class = require('src.utils.class')
+require('src.bspBuilding')
 local Grid = require("src.grid")
 
 local grid
