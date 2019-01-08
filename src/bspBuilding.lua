@@ -9,6 +9,13 @@ local iteration = 0
 local roomNumber = 1
 local dontSplitProb = 35
 
+function BspBuilding:pruneRooms(numRooms)
+    for i = 1, numRooms do
+        local roomIndex = math.random(#self.rooms)
+        table.remove(self.rooms, roomIndex)
+    end
+end
+
 function BspBuilding:createOuterWalls()
     local grid = {}
     for x = 1, self.w do
@@ -16,7 +23,7 @@ function BspBuilding:createOuterWalls()
         for y = 1, self.h do
             grid[x][y] = {}
             if x == 1 or x == self.w or y == 1 or y == self.h then
-                grid[x][y].outerWall = false
+                grid[x][y] = 'outerWall'
             end
         end
     end
@@ -27,7 +34,7 @@ function BspBuilding:createRoom(x, y, w, h)
     for i = x, x + w do
         for j = y, y + h do
             if i == x or i == x + w or j == y or j == y + h then
-                self.grid[i][j].outerWall = true
+                self.grid[i][j] = 'outerWall'
             end
         end
     end
@@ -38,8 +45,8 @@ function BspBuilding:demoWalls()
     for x = 1, self.w do
         for y = 1, self.h do
             local prob = bsp_rng:random(100)
-            if self.grid[x][y].outerWall and prob > 95 then
-                self.grid[x][y].outerWall = false
+            if self.grid[x][y] == 'outerWall' and prob > 95 then
+                self.grid[x][y] = 'outerFloor'
             end
         end
     end
@@ -65,7 +72,7 @@ function BspBuilding:demoNeighbourWall(room, neighbour)
         end
     end
     local demoWall = sharedWalls[math.random(1, #sharedWalls)]
-    self.grid[demoWall.x][demoWall.y].outerWall = false
+    self.grid[demoWall.x][demoWall.y] = 'outerFloor'
 end
 
 function BspBuilding:demoNeighbourWalls()
@@ -91,7 +98,7 @@ function BspBuilding:createFinalRoom(x, y, w, h)
         edgeWalls = {},
         cornerWalls = {},
         neighbours = {},
-        debugColour = { math.random(0, 255) / 255, math.random(0, 255) / 255, math.random(0, 255) / 255, 127 / 255 }
+        debugColour = { math.random(0, 255) / 255, math.random(0, 255) / 255, math.random(0, 255) / 255, 1 }
     }
     for i = x, x + w do
         for j = y, y + h do
@@ -329,6 +336,7 @@ function BspBuilding:init(w, h, minRoomSize)
     -- self:addOuterDoor()
 
     self:createRoom(1, 1, w - 1, h - 1)
+    self:pruneRooms(math.floor(#self.rooms * 0.2))
     self:setRoomNeighbours()
     self.points = self:getPointsDataForMst()
     self.edges = self:getEdgeDataForMst()
