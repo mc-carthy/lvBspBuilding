@@ -82,7 +82,7 @@ end
 local _drawMst = function(self)
     love.graphics.setColor(1, 0, 1, 1)
     for i = 1, #self.building.tree do
-        love.graphics.line(self.building.tree[i][1] * 10,self.building.tree[i][2] * 10,self.building.tree[i][3] * 10,self.building.tree[i][4] * 10)
+        love.graphics.line(self.building.tree[i][1] * self.cellSize,self.building.tree[i][2] * self.cellSize,self.building.tree[i][3] * self.cellSize,self.building.tree[i][4] * self.cellSize)
     end
 end
 
