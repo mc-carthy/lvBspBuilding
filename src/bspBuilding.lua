@@ -9,10 +9,60 @@ local iteration = 0
 local roomNumber = 1
 local dontSplitProb = 35
 
+function BspBuilding:isFullyConnectedWithoutRoom(roomIndexToBeRemoved)
+    roomsToCheck = {}
+    checkedRooms = {}
+
+    local roomToBeRemoved = self.rooms[roomIndexToBeRemoved]
+    local firstRoomIndex = (roomIndexToBeRemoved ~= 1) and 1 or 2
+    table.insert(roomsToCheck, self.rooms[firstRoomIndex])
+
+    while #roomsToCheck > 0 do
+        local roomToCheck = table.remove(roomsToCheck, 1)
+        local roomNeighbours = self:getNeighbours(roomToCheck)
+        for _, n in pairs(roomNeighbours) do
+            if not Utils.contains(checkedRooms, n) then
+                if  n ~= roomToBeRemoved then
+                    for _, c in pairs(checkedRooms) do
+                    end
+                    if not Utils.contains(roomsToCheck, n) then
+                        table.insert(roomsToCheck, n)
+                    end
+                end
+            end
+        end
+        table.insert(checkedRooms, roomToCheck)
+    end
+    -- print('Number of checked rooms: ' .. #checkedRooms)
+    -- print('Number of total rooms: ' .. #self.rooms)
+    return #checkedRooms + 1 == #self.rooms
+end
+
+function BspBuilding:getNeighbours(roomA)
+    local neighbours = {}
+    for x, edgeWallA in ipairs(roomA.edgeWalls) do
+        for j, roomB in ipairs(self.rooms) do
+            if roomA ~= roomB then
+                for y, edgeWallB in ipairs(roomB.edgeWalls) do
+                    if edgeWallA.x == edgeWallB.x and edgeWallA.y == edgeWallB.y then
+                        if not Utils.contains(neighbours, roomB) then
+                            table.insert(neighbours, roomB)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return neighbours
+end
+
 function BspBuilding:pruneRooms(numRooms)
-    for i = 1, numRooms do
+    while numRooms > 0 do
         local roomIndex = math.random(#self.rooms)
-        table.remove(self.rooms, roomIndex)
+        if (self:isFullyConnectedWithoutRoom(roomIndex)) then
+            numRooms = numRooms - 1
+            table.remove(self.rooms, roomIndex)
+        end
     end
 end
 
@@ -336,7 +386,7 @@ function BspBuilding:init(w, h, minRoomSize)
     -- self:addOuterDoor()
 
     self:createRoom(1, 1, w - 1, h - 1)
-    self:pruneRooms(math.floor(#self.rooms * 0.2))
+    self:pruneRooms(math.floor(#self.rooms * 0))
     self:setRoomNeighbours()
     self.points = self:getPointsDataForMst()
     self.edges = self:getEdgeDataForMst()

@@ -1,5 +1,9 @@
 local utils = {}
 
+function table.dequeue(tbl)
+    return table.remove(tbl, 1)
+end
+
 function utils.contains(table, element)
     for _, value in pairs(table) do
         if value == element then
