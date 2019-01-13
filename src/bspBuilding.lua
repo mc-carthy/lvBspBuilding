@@ -9,6 +9,16 @@ local iteration = 0
 local roomNumber = 1
 local dontSplitProb = 35
 
+function BspBuilding:isOuterWall(wall)
+    
+    return false
+end
+
+function BspBuilding:isOuterRoom(room)
+
+    return false
+end
+
 function BspBuilding:isFullyConnectedWithoutRoom(roomIndexToBeRemoved)
     roomsToCheck = {}
     checkedRooms = {}
