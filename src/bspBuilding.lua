@@ -9,14 +9,30 @@ local iteration = 0
 local roomNumber = 1
 local dontSplitProb = 35
 
-function BspBuilding:isOuterWall(wall)
-    
-    return false
-end
-
 function BspBuilding:isOuterRoom(room)
-
-    return false
+    local function isOuterWall(wall)
+        for x = -1, 1 do
+            for y = -1, 1 do
+                if self.grid[x + wall.x] ~= nil and self.grid[x + wall.x][y + wall.y] ~= nil then
+                    for _, neighbour in pairs(self:getNeighbours(room)) do
+                        for _, floorTile in pairs(neighbour.floor) do
+                            if floorTile.x == x + wall.x and floorTile.y == y + wall.y then
+                                return false
+                            end
+                        end
+                    end
+                else
+                    return true
+                end
+            end
+        end
+    end
+    
+    for _, w in pairs(room.edgeWalls) do
+        if isOuterWall(w) then
+            return true
+        end
+    end
 end
 
 function BspBuilding:isFullyConnectedWithoutRoom(roomIndexToBeRemoved)
@@ -66,13 +82,19 @@ function BspBuilding:getNeighbours(roomA)
     return neighbours
 end
 
-function BspBuilding:pruneRooms(numRooms)
+function BspBuilding:pruneRooms(numRooms, onlyOuterRooms)
+    if onlyOuterRooms == nil then onlyOuterRooms = true end
     while numRooms > 0 do
         local roomIndex = math.random(#self.rooms)
-        if (self:isFullyConnectedWithoutRoom(roomIndex)) then
+        if onlyOuterRooms and not self:isOuterRoom(self.rooms[roomIndex]) then 
+            goto continue 
+        end
+
+        if self:isFullyConnectedWithoutRoom(roomIndex) then
             numRooms = numRooms - 1
             table.remove(self.rooms, roomIndex)
         end
+        ::continue::
     end
 end
 
@@ -132,7 +154,17 @@ function BspBuilding:demoNeighbourWall(room, neighbour)
         end
     end
     local demoWall = sharedWalls[math.random(1, #sharedWalls)]
-    self.grid[demoWall.x][demoWall.y] = 'outerFloor'
+    for i, w in ipairs(room.edgeWalls) do
+        if w.x == demoWall.x and w.y == demoWall.y then
+            table.remove(room.edgeWalls[i])
+        end
+    end
+    for i, w in ipairs(neighbour.edgeWalls) do
+        if w.x == demoWall.x and w.y == demoWall.y then
+            table.remove(neighbour.edgeWalls[i])
+        end
+    end
+    self.grid[demoWall.x][demoWall.y] = 'door'
 end
 
 function BspBuilding:demoNeighbourWalls()
@@ -385,6 +417,20 @@ function BspBuilding.addOuterDoor()
     end
 end
 
+function BspBuilding:finaliseTiles()
+    for _, r in pairs(self.rooms) do
+        for _, c in pairs(r.cornerWalls) do
+            self.grid[c.x][c.y] = 'interiorWall'
+        end
+        for _, e in pairs(r.edgeWalls) do
+            self.grid[e.x][e.y] = 'interiorWall'
+        end
+        for _, f in pairs(r.floor) do
+            self.grid[f.x][f.y] = 'floor'
+        end
+    end
+end
+
 function BspBuilding:init(w, h, minRoomSize)
     self.grid = {}
     self.rooms = {}
@@ -396,7 +442,7 @@ function BspBuilding:init(w, h, minRoomSize)
     -- self:addOuterDoor()
 
     self:createRoom(1, 1, w - 1, h - 1)
-    self:pruneRooms(math.floor(#self.rooms * 0))
+    self:pruneRooms(math.floor(#self.rooms * 0.4), false)
     self:setRoomNeighbours()
     self.points = self:getPointsDataForMst()
     self.edges = self:getEdgeDataForMst()
@@ -407,6 +453,7 @@ function BspBuilding:init(w, h, minRoomSize)
     self:setRoomNeighboursMst()
     -- demoWalls()
     -- demoRoomWalls()
+    self:finaliseTiles()
     self:demoNeighbourWalls()
     self:setRoomNeighboursMst()
     -- setRoomNeighbours()

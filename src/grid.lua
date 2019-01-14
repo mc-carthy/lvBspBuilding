@@ -31,9 +31,7 @@ local function _addBuilding(self, buildingX, buildingY, buildingW, buildingH)
 
     for x = 1, bspBuilding.w do
         for y = 1, bspBuilding.h do
-            if bspBuilding.grid[x][y] == 'outerWall' then
-                self[x + buildingX][y + buildingY].walkable = false
-            end
+            self[x + buildingX][y + buildingY] = bspBuilding.grid[x][y]
         end
     end
 
@@ -93,8 +91,12 @@ local draw = function(self)
     for x = 1, self.xSize do
         for y = 1, self.ySize do
             love.graphics.setColor(0, 0, 0)
-            if self[x][y].walkable == false then
+            if self[x][y] == 'interiorWall' then
                 love.graphics.setColor(0.25, 0.25, 0.25)
+            elseif self[x][y] == 'floor' then
+                love.graphics.setColor(0.75, 0.75, 0.75)
+            elseif self[x][y] == 'door' then
+                love.graphics.setColor(139 / 255, 69 / 255, 19 / 255)
             end
             if gridDebugFlag then
                 love.graphics.rectangle('fill', (x - 1) * self.cellSize, (y - 1) * self.cellSize, self.cellDrawSize, self.cellDrawSize)
